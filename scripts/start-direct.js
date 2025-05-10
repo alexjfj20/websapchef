@@ -25,6 +25,7 @@ try {
     console.error('Por favor, ajusta la ruta CADDY_PATH en este script.');
     process.exit(1);
   }
+  
   // Verificar si Caddy ya está en ejecución
   console.log('Verificando si Caddy ya está en ejecución...');
   let caddyRunning = false;
