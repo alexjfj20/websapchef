@@ -1,6 +1,7 @@
 const { execSync, spawn } = require('child_process');
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
 
 // Determinar si estamos en Windows o Linux/Mac
 const isWindows = os.platform() === 'win32';
@@ -9,13 +10,46 @@ const rootDir = path.resolve(__dirname, '..');
 console.log('Iniciando entorno de producción para WebSAP...');
 
 try {
-  // Verificar si Caddy está instalado
-  try {
-    console.log('Verificando si Caddy está instalado...');
-    execSync(isWindows ? 'where caddy' : 'which caddy', { stdio: 'ignore' });
-  } catch (error) {
-    console.error('Caddy no está instalado. Por favor, instala Caddy primero.');
+  // Verificar si Caddy está instalado o disponible
+  console.log('Verificando si Caddy está disponible...');
+  
+  // Primero, intentar encontrar Caddy en la ruta especificada
+  const caddyPaths = [
+    'C:\\Caddy\\caddy.exe',
+    'C:\\caddy\\caddy.exe',
+    'C:\\Program Files\\Caddy\\caddy.exe',
+    'C:\\www\\caddy.exe',
+    path.join(rootDir, 'caddy.exe')
+  ];
+  
+  let caddyPath = null;
+  
+  // Comprobar si existe en alguna de las rutas comunes
+  for (const potentialPath of caddyPaths) {
+    if (fs.existsSync(potentialPath)) {
+      caddyPath = potentialPath;
+      console.log(`Caddy encontrado en: ${caddyPath}`);
+      break;
+    }
+  }
+  
+  // Si no se encuentra en las rutas comunes, intentar con where/which
+  if (!caddyPath) {
+    try {
+      const whereResult = execSync(isWindows ? 'where caddy' : 'which caddy', { encoding: 'utf8' }).trim();
+      if (whereResult) {
+        caddyPath = whereResult;
+        console.log(`Caddy encontrado en PATH: ${caddyPath}`);
+      }
+    } catch (error) {
+      console.warn('Caddy no encontrado en PATH del sistema');
+    }
+  }
+  
+  if (!caddyPath) {
+    console.error('No se pudo encontrar Caddy. Por favor, asegúrate de que esté instalado.');
     console.error('Visita https://caddyserver.com/docs/install para instrucciones.');
+    console.error('O especifica la ruta completa a caddy.exe en este script.');
     process.exit(1);
   }
 
@@ -40,12 +74,27 @@ try {
       console.log('No se pudo copiar Caddyfile a /etc/caddy/, usando el archivo local...');
     }
   }
-
   // Iniciar Caddy
   console.log('Iniciando Caddy...');
+  
+  // Comprobar si existe el archivo Caddyfile
+  const caddyfilePath = path.join(rootDir, 'Caddyfile');
+  if (!fs.existsSync(caddyfilePath)) {
+    console.error(`Error: No se encontró el archivo Caddyfile en ${caddyfilePath}`);
+    console.error('Creando un Caddyfile básico...');
+    
+    // Crear un Caddyfile básico si no existe
+    const basicCaddyfile = `93.127.129.46 {
+  reverse_proxy localhost:3000
+}`;
+    fs.writeFileSync(caddyfilePath, basicCaddyfile);
+    console.log(`Se ha creado un Caddyfile básico en ${caddyfilePath}`);
+  }
+  
+  console.log(`Ejecutando: ${caddyPath} run --config ${caddyfilePath}`);
   const caddyProcess = spawn(
-    'caddy',
-    ['run', '--config', path.join(rootDir, 'Caddyfile')],
+    caddyPath,
+    ['run', '--config', caddyfilePath],
     {
       detached: true,
       stdio: 'ignore',

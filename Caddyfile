@@ -2,16 +2,11 @@
     # Comprimir las respuestas para mejorar la velocidad
     encode gzip
 
-    # Manejar todas las solicitudes
-    handle {
-        # Reenviar solicitudes a tu aplicación Node.js
-        reverse_proxy localhost:3000
-    }
-
-    # Registro de logs
-    log {
-        output file /var/log/caddy/websap.log
-    }
+    # Reenviar solicitudes a tu aplicación Node.js
+    reverse_proxy localhost:3000
+    
+    # Configuración de TLS - opcional para desarrollo local
+    # tls internal
 }
 
 # Configuración alternativa si tienes un nombre de dominio
