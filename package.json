@@ -1,0 +1,67 @@
+{
+  "name": "websap",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "cross-env vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "seed": "node backend/scripts/seedData.js",
+    "deploy": "node scripts/deploy.js",
+    "prod": "NODE_ENV=production node backend/server.js",
+    "github": "node scripts/git-push.js"
+  },
+  "dependencies": {
+    "@vue/cli-service": "~5.0.0",
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^1.20.3",
+    "chart.js": "^3.9.1",
+    "core-js": "^3.8.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "file-saver": "^2.0.5",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.14.0",
+    "sequelize": "^6.37.6",
+    "socket.io-client": "^4.7.5",
+    "vue": "^3.2.13",
+    "vue-chartjs": "^4.1.2",
+    "vue-router": "^4.0.13",
+    "websap": "file:",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.0.0",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 10"
+  ]
+}
