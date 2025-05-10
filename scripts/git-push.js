@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('Iniciando preparación para subir a GitHub...');
+console.log('Iniciando actualización del repositorio GitHub...');
 
 try {
   // Verificar si Git está inicializado
@@ -11,9 +11,10 @@ try {
     execSync('git init', { stdio: 'inherit' });
   }
 
-  // Crear archivo .gitignore
-  console.log('Creando archivo .gitignore...');
-  const gitignoreContent = `# Dependencias
+  // Crear archivo .gitignore si no existe
+  if (!fs.existsSync(path.join(process.cwd(), '.gitignore'))) {
+    console.log('Creando archivo .gitignore...');
+    const gitignoreContent = `# Dependencias
 /node_modules
 /.pnp
 .pnp.js
@@ -50,32 +51,49 @@ logs
 Thumbs.db
 `;
 
-  fs.writeFileSync(path.join(process.cwd(), '.gitignore'), gitignoreContent);
+    fs.writeFileSync(path.join(process.cwd(), '.gitignore'), gitignoreContent);
+  }
+
+  // Verificar si el remoto ya existe
+  let remoteExists = false;
+  try {
+    execSync('git remote get-url origin', { stdio: 'pipe' });
+    remoteExists = true;
+  } catch (e) {
+    // El remote no existe aún
+  }
+
+  if (!remoteExists) {
+    // Configurar el repositorio remoto
+    console.log('Configurando repositorio remoto...');
+    execSync('git remote add origin https://github.com/alexjfj20/websapchef.git', { stdio: 'inherit' });
+  }
 
   // Añadir archivos al repositorio
   console.log('Añadiendo archivos al repositorio...');
   execSync('git add .', { stdio: 'inherit' });
 
-  // Realizar el primer commit
-  console.log('Realizando commit inicial...');
-  execSync('git commit -m "Commit inicial del proyecto WebSAP"', { stdio: 'inherit' });
-
-  // Configurar el repositorio remoto
-  console.log('Configurando repositorio remoto...');
-  execSync('git remote add origin https://github.com/alexjfj20/websapchef.git', { stdio: 'inherit' });
-
+  // Realizar commit con mensaje descriptivo
+  console.log('Realizando commit con los cambios...');
+  const commitMessage = 'Actualización de configuración para producción y despliegue con Caddy';
+  execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' });
   // Subir al repositorio
-  console.log('Subiendo archivos a GitHub...');
+  console.log('Subiendo cambios a GitHub...');
   try {
     execSync('git push -u origin master', { stdio: 'inherit' });
   } catch (error) {
     console.log('Intentando subir a la rama main...');
-    execSync('git push -u origin main', { stdio: 'inherit' });
+    try {
+      execSync('git push -u origin main', { stdio: 'inherit' });
+    } catch (mainError) {
+      console.error('Error al subir a GitHub:', mainError.message);
+      throw mainError;
+    }
   }
 
-  console.log('¡Proceso completado! El proyecto ha sido subido a https://github.com/alexjfj20/websapchef.git');
-  console.log('Si es la primera vez que usas Git desde este equipo, es posible que te solicite credenciales de GitHub.');
+  console.log('¡Repositorio actualizado correctamente!');
+  console.log('Los cambios han sido subidos a https://github.com/alexjfj20/websapchef.git');
 } catch (error) {
-  console.error('Ocurrió un error:', error.message);
+  console.error('Ocurrió un error al actualizar el repositorio:', error.message);
   process.exit(1);
 }

@@ -1,6 +1,6 @@
 {
   "name": "websap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "serve": "cross-env vue-cli-service serve",
@@ -11,7 +11,9 @@
     "seed": "node backend/scripts/seedData.js",
     "deploy": "node scripts/deploy.js",
     "prod": "NODE_ENV=production node backend/server.js",
-    "github": "node scripts/git-push.js"
+    "github": "node scripts/git-push.js",
+    "start:prod": "node scripts/start-production.js",
+    "start:caddy": "caddy run --config Caddyfile"
   },
   "dependencies": {
     "@vue/cli-service": "~5.0.0",
